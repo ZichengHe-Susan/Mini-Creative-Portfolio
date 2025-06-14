@@ -157,7 +157,7 @@ npm start
 - `POST /api/creative-fields/` - Create a new creative field
 - `GET /api/creative-fields/{id}/` - Get creative field details
 
-## 🎨 Frontend Components (Currently Dummy)
+## 🎨 Frontend Components (Currently without styling)
 
 ### Components
 - `Header` - Navigation header

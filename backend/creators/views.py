@@ -46,7 +46,10 @@ class CreatorListCreateView(generics.ListCreateAPIView):
             queryset = queryset.filter(name__icontains=search_query)
         
         # Filter by creative fields
-        creative_fields = self.request.query_params.getlist('creative_fields')
+        creative_fields = (
+            self.request.query_params.getlist('creative_fields') or
+            self.request.query_params.getlist('creative_fields[]')
+        )
         if creative_fields:
             queryset = queryset.filter(creative_fields__id__in=creative_fields).distinct()
         
@@ -79,7 +82,10 @@ def search_creators(request):
         queryset = queryset.filter(bio__icontains=bio_query)
     
     # Filter by creative fields
-    creative_fields = request.query_params.getlist('creative_fields')
+    creative_fields = (
+        request.query_params.getlist('creative_fields') or
+        request.query_params.getlist('creative_fields[]')
+    )
     if creative_fields:
         queryset = queryset.filter(creative_fields__id__in=creative_fields).distinct()
     
