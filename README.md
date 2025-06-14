@@ -1,1 +1,176 @@
-# Mini-Creative-Portfolio
+# Mini Creative Portfolio & Search App
+
+A full-stack web application that allows creatives to create public portfolios and enables users to search for them based on creative fields and keywords.
+
+## 🛠 Tech Stack
+
+- **Backend:** Django (Python) with Django REST Framework
+- **Frontend:** React.js with React Router
+- **Database:** PostgreSQL
+- **Storage:** Local file storage for profile pictures
+- **Styling:** Basic CSS (to be enhanced)
+
+## 📁 Project Structure
+
+```
+creative-portfolio/
+├── backend/
+│   ├── manage.py
+│   ├── requirements.txt
+│   ├── creative_portfolio/          # Django project settings
+│   │   ├── __init__.py
+│   │   ├── settings.py
+│   │   ├── urls.py
+│   │   └── wsgi.py
+│   ├── creators/                    # Main Django app
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── models.py
+│   │   ├── serializers.py
+│   │   ├── views.py
+│   │   ├── urls.py
+│   │   └── migrations/
+│   └── media/
+│       └── profile_pics/
+├── frontend/
+│   ├── package.json
+│   ├── src/
+│   │   ├── components/              # Reusable React components
+│   │   ├── pages/                   # Page-level components
+│   │   ├── services/                # API service functions
+│   │   ├── App.js
+│   │   └── index.js
+│   └── public/
+└── README.md
+```
+
+## ⚙️ Core Features
+
+### 1️⃣ Create Creative User Profiles
+- Name
+- Profile Picture (photo upload)
+- Bio
+- Creative Fields (multi-select tags: photography, fashion design, cinematography, music, graphic design)
+- Portfolio Links (1-3 external links: personal website, Instagram, etc.)
+
+### 2️⃣ Display Creators
+- Responsive profile cards showing:
+  - Profile pic
+  - Name
+  - Bio preview
+  - Creative fields as tags
+  - Portfolio Links
+
+### 3️⃣ Search for Creators
+- Search by name substring
+- Filter by creative fields
+- Advanced search across name and bio
+
+## 🚀 Setup Instructions
+
+### Prerequisites
+- Python 3.8+
+- Node.js 14+
+- PostgreSQL
+- Git
+
+### Backend Setup (Django)
+
+1. Navigate to the backend directory:
+```bash
+cd backend
+```
+
+2. Create a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+4. Create a `.env` file in the backend directory:
+```bash
+SECRET_KEY=your-secret-key-here
+DEBUG=True
+DB_NAME=creative_portfolio
+DB_USER=postgres
+DB_PASSWORD=your-db-password
+DB_HOST=localhost
+DB_PORT=5432
+```
+
+5. Set up PostgreSQL database:
+```bash
+# Create database (run in PostgreSQL shell)
+CREATE DATABASE creative_portfolio;
+```
+
+6. Run migrations:
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+7. Create a superuser (optional):
+```bash
+python manage.py createsuperuser
+```
+
+8. Start the Django development server:
+```bash
+python manage.py runserver
+```
+
+### Frontend Setup (React)
+
+1. Navigate to the frontend directory:
+```bash
+cd frontend
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Start the React development server:
+```bash
+npm start
+```
+
+## 📡 API Endpoints
+
+### Creators
+- `GET /api/creators/` - List all creators with optional search/filter
+- `POST /api/creators/` - Create a new creator
+- `GET /api/creators/{id}/` - Get creator details
+- `PUT /api/creators/{id}/` - Update creator
+- `DELETE /api/creators/{id}/` - Delete creator
+- `GET /api/search/` - Advanced search for creators
+
+### Creative Fields
+- `GET /api/creative-fields/` - List all creative fields
+- `POST /api/creative-fields/` - Create a new creative field
+- `GET /api/creative-fields/{id}/` - Get creative field details
+
+## 🎨 Frontend Components (Currently Dummy)
+
+### Components
+- `Header` - Navigation header
+- `Footer` - Site footer
+- `CreatorCard` - Display creator profile card
+- `SearchForm` - Search and filter interface
+- `CreatorForm` - Create/edit creator profile form
+
+### Pages
+- `HomePage` - Main page with search and creator listing
+- `CreateCreatorPage` - Create new creator profile
+- `CreatorDetailPage` - View creator profile details
+
+### Services
+- `api.js` - API service functions for backend communication
+

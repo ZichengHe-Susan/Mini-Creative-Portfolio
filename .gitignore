@@ -1,0 +1,4 @@
+frontend/node_modules
+backend/.env
+backend/creative_portfolio/__pycache__
+backend/venv
