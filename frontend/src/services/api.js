@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// Base API configuration
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
 const api = axios.create({
@@ -10,13 +9,10 @@ const api = axios.create({
   },
 });
 
-// Creator API functions
 export const creatorAPI = {
-  // Get all creators with optional search/filter parameters
   getCreators: async (params = {}) => {
     try {
       const response = await api.get('/creators/', { params });
-      // Extract results from paginated response
       return response.data.results || response.data;
     } catch (error) {
       console.error('Error fetching creators:', error);
@@ -24,7 +20,6 @@ export const creatorAPI = {
     }
   },
 
-  // Get creator by ID
   getCreatorById: async (id) => {
     try {
       const response = await api.get(`/creators/${id}/`);
@@ -35,30 +30,32 @@ export const creatorAPI = {
     }
   },
 
-  // Create new creator
   createCreator: async (creatorData) => {
     try {
-      // Handle file upload with FormData if profile_picture exists
-      let data = creatorData;
+      let payload = { ...creatorData };
+
+      if (!(payload.profile_picture instanceof File)) {
+        delete payload.profile_picture;
+      }
+
+      let data = payload;
       let headers = {};
       
-      if (creatorData.profile_picture instanceof File) {
+      if (payload.profile_picture instanceof File) {
         data = new FormData();
-        Object.keys(creatorData).forEach(key => {
-          if (key === 'creative_fields' && Array.isArray(creatorData[key])) {
-            // Handle many-to-many field for creative_fields - backend expects 'creative_field_ids'
-            creatorData[key].forEach(fieldId => {
+        Object.keys(payload).forEach(key => {
+          if (key === 'creative_fields' && Array.isArray(payload[key])) {
+            payload[key].forEach(fieldId => {
               data.append('creative_field_ids', fieldId);
             });
-          } else if (key !== 'creative_fields') { // Skip creative_fields since we handle it as creative_field_ids
-            data.append(key, creatorData[key]);
+          } else if (key !== 'creative_fields') { 
+            data.append(key, payload[key]);
           }
         });
         headers['Content-Type'] = 'multipart/form-data';
       } else {
-        // For non-file uploads, rename creative_fields to creative_field_ids
-        if (creatorData.creative_fields) {
-          data = { ...creatorData, creative_field_ids: creatorData.creative_fields };
+        if (payload.creative_fields) {
+          data = { ...payload, creative_field_ids: payload.creative_fields };
           delete data.creative_fields;
         }
       }
@@ -71,30 +68,32 @@ export const creatorAPI = {
     }
   },
 
-  // Update creator
   updateCreator: async (id, creatorData) => {
     try {
-      // Handle file upload with FormData if profile_picture exists
-      let data = creatorData;
+      let payload = { ...creatorData };
+
+      if (!(payload.profile_picture instanceof File)) {
+        delete payload.profile_picture;
+      }
+
+      let data = payload;
       let headers = {};
-      
-      if (creatorData.profile_picture instanceof File) {
+
+      if (payload.profile_picture instanceof File) {
         data = new FormData();
-        Object.keys(creatorData).forEach(key => {
-          if (key === 'creative_fields' && Array.isArray(creatorData[key])) {
-            // Handle many-to-many field for creative_fields - backend expects 'creative_field_ids'
-            creatorData[key].forEach(fieldId => {
+        Object.keys(payload).forEach(key => {
+          if (key === 'creative_fields' && Array.isArray(payload[key])) {
+            payload[key].forEach(fieldId => {
               data.append('creative_field_ids', fieldId);
             });
-          } else if (key !== 'creative_fields') { // Skip creative_fields since we handle it as creative_field_ids
-            data.append(key, creatorData[key]);
+          } else if (key !== 'creative_fields') { 
+            data.append(key, payload[key]);
           }
         });
         headers['Content-Type'] = 'multipart/form-data';
       } else {
-        // For non-file uploads, rename creative_fields to creative_field_ids
-        if (creatorData.creative_fields) {
-          data = { ...creatorData, creative_field_ids: creatorData.creative_fields };
+        if (payload.creative_fields) {
+          data = { ...payload, creative_field_ids: payload.creative_fields };
           delete data.creative_fields;
         }
       }
@@ -107,7 +106,6 @@ export const creatorAPI = {
     }
   },
 
-  // Delete creator
   deleteCreator: async (id) => {
     try {
       const response = await api.delete(`/creators/${id}/`);
@@ -118,11 +116,9 @@ export const creatorAPI = {
     }
   },
 
-  // Search creators with advanced parameters
   searchCreators: async (searchParams) => {
     try {
       const response = await api.get('/search/', { params: searchParams });
-      // Extract results from paginated response
       return response.data.results || response.data;
     } catch (error) {
       console.error('Error searching creators:', error);
@@ -131,16 +127,12 @@ export const creatorAPI = {
   },
 };
 
-// Creative Fields API functions
 export const creativeFieldsAPI = {
-  // Get all creative fields
   getCreativeFields: async () => {
     try {
-      // Get all creative fields by setting a high page size limit
       const response = await api.get('/creative-fields/', { 
-        params: { page_size: 100 } // Get up to 100 fields in one request
+        params: { page_size: 100 } 
       });
-      // Extract results from paginated response
       return response.data.results || response.data;
     } catch (error) {
       console.error('Error fetching creative fields:', error);
@@ -148,7 +140,6 @@ export const creativeFieldsAPI = {
     }
   },
 
-  // Get creative field by ID
   getCreativeFieldById: async (id) => {
     try {
       const response = await api.get(`/creative-fields/${id}/`);
@@ -159,7 +150,6 @@ export const creativeFieldsAPI = {
     }
   },
 
-  // Create new creative field
   createCreativeField: async (fieldData) => {
     try {
       const response = await api.post('/creative-fields/', fieldData);
@@ -170,7 +160,6 @@ export const creativeFieldsAPI = {
     }
   },
 
-  // Update creative field
   updateCreativeField: async (id, fieldData) => {
     try {
       const response = await api.put(`/creative-fields/${id}/`, fieldData);
@@ -181,7 +170,6 @@ export const creativeFieldsAPI = {
     }
   },
 
-  // Delete creative field
   deleteCreativeField: async (id) => {
     try {
       const response = await api.delete(`/creative-fields/${id}/`);

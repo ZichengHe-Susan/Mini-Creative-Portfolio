@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { creatorAPI } from '../services/api';
 import CreatorForm from '../components/CreatorForm';
+import '../styles/CreatorForm.css';
 
 const EditCreatorPage = () => {
   const { id } = useParams();
@@ -11,7 +12,6 @@ const EditCreatorPage = () => {
   const [error, setError] = useState('');
   const [formLoading, setFormLoading] = useState(false);
 
-  // Fetch creator data on component mount
   useEffect(() => {
     fetchCreatorData();
   }, [id]);
@@ -30,33 +30,27 @@ const EditCreatorPage = () => {
     }
   };
 
-  // Handle successful creator update
   const handleUpdateSuccess = (updatedCreator) => {
     setFormLoading(false);
     setError('');
-    // Navigate back to the creator's detail page with success message
     navigate(`/creator/${updatedCreator.id}`, { 
       state: { message: 'Profile updated successfully!' }
     });
   };
 
-  // Handle update errors
   const handleUpdateError = (error) => {
     setFormLoading(false);
     setError(error.message || 'Failed to update profile');
   };
 
-  // Handle cancel action
   const handleCancel = () => {
     navigate(`/creator/${id}`);
   };
 
-  // Handle form loading state changes
   const handleLoadingChange = (isLoading) => {
     setFormLoading(isLoading);
   };
 
-  // Loading state
   if (loading) {
     return (
       <div className="container">
@@ -67,7 +61,6 @@ const EditCreatorPage = () => {
     );
   }
 
-  // Error state
   if (error && !creator) {
     return (
       <div className="container">
@@ -85,7 +78,6 @@ const EditCreatorPage = () => {
     );
   }
 
-  // Creator not found
   if (!creator) {
     return (
       <div className="container">

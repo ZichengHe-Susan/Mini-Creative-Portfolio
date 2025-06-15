@@ -8,7 +8,7 @@ A full-stack web application that allows creatives to create public portfolios a
 - **Frontend:** React.js with React Router
 - **Database:** PostgreSQL
 - **Storage:** Local file storage for profile pictures
-- **Styling:** Basic CSS (to be enhanced)
+- **Styling:** CSS 
 
 ## 📁 Project Structure
 
@@ -17,12 +17,12 @@ creative-portfolio/
 ├── backend/
 │   ├── manage.py
 │   ├── requirements.txt
-│   ├── creative_portfolio/          # Django project settings
+│   ├── creative_portfolio/          
 │   │   ├── __init__.py
 │   │   ├── settings.py
 │   │   ├── urls.py
 │   │   └── wsgi.py
-│   ├── creators/                    # Main Django app
+│   ├── creators/                    
 │   │   ├── __init__.py
 │   │   ├── admin.py
 │   │   ├── models.py
@@ -35,9 +35,9 @@ creative-portfolio/
 ├── frontend/
 │   ├── package.json
 │   ├── src/
-│   │   ├── components/              # Reusable React components
-│   │   ├── pages/                   # Page-level components
-│   │   ├── services/                # API service functions
+│   │   ├── components/             
+│   │   ├── pages/                
+│   │   ├── services/              
 │   │   ├── App.js
 │   │   └── index.js
 │   └── public/
@@ -97,7 +97,7 @@ pip install -r requirements.txt
 SECRET_KEY=your-secret-key-here
 DEBUG=True
 DB_NAME=creative_portfolio
-DB_USER=postgres
+DB_USER=your_db_user_name
 DB_PASSWORD=your-db-password
 DB_HOST=localhost
 DB_PORT=5432
@@ -105,9 +105,13 @@ DB_PORT=5432
 
 5. Set up PostgreSQL database:
 ```bash
-# Create database (run in PostgreSQL shell)
+psql -U postgres -d DB_USER
+```
+loging with your DB_PASSWORD, and run in postgres shell
+```bash
 CREATE DATABASE creative_portfolio;
 ```
+command/ctrl + D to exit
 
 6. Run migrations:
 ```bash
@@ -115,9 +119,9 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
-7. Create a superuser (optional):
+7. Populate initial creative fields (one-time):
 ```bash
-python manage.py createsuperuser
+python manage.py populate_fields
 ```
 
 8. Start the Django development server:

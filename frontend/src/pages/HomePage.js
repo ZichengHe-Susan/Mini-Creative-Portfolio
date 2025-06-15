@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import SearchForm from '../components/SearchForm';
 import CreatorCard from '../components/CreatorCard';
 import { creatorAPI } from '../services/api';
+import '../styles/HomePage.css';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -11,17 +12,30 @@ const HomePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const creatorsPerPage = 6;
 
-  // Check for success message from navigation state
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => setSuccessMessage(''), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(''), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
   useEffect(() => {
     if (location.state?.message) {
       setSuccessMessage(location.state.message);
-      // Clear the message from state
       navigate(location.pathname, { replace: true });
     }
   }, [location.state, navigate, location.pathname]);
 
-  // Fetch all creators on component mount
   useEffect(() => {
     fetchCreators();
   }, []);
@@ -32,6 +46,7 @@ const HomePage = () => {
       setError('');
       const creatorsData = await creatorAPI.getCreators();
       setCreators(creatorsData);
+      setCurrentPage(1); 
     } catch (error) {
       setError('Failed to load creators');
       console.error('Error fetching creators:', error);
@@ -40,28 +55,24 @@ const HomePage = () => {
     }
   };
 
-  // Handle search results from SearchForm
   const handleSearchResults = (results) => {
     setCreators(results);
     setError('');
+    setCurrentPage(1); 
   };
 
-  // Handle loading state changes from SearchForm
   const handleLoadingChange = (isLoading) => {
     setLoading(isLoading);
   };
 
-  // Handle view profile action
   const handleViewProfile = (creatorId) => {
     navigate(`/creator/${creatorId}`);
   };
 
-  // Handle edit profile action
   const handleEditProfile = (creatorId) => {
     navigate(`/creator/${creatorId}/edit`);
   };
 
-  // Handle create new profile action
   const handleCreateProfile = () => {
     navigate('/create');
   };
@@ -122,14 +133,16 @@ const HomePage = () => {
         
         {creators.length > 0 ? (
           <div className="creators-grid">
-            {creators.map((creator) => (
-              <CreatorCard
-                key={creator.id}
-                creator={creator}
-                onViewProfile={handleViewProfile}
-                onEditProfile={handleEditProfile}
-              />
-            ))}
+            {creators
+              .slice((currentPage - 1) * creatorsPerPage, currentPage * creatorsPerPage)
+              .map((creator) => (
+                <CreatorCard
+                  key={creator.id}
+                  creator={creator}
+                  onViewProfile={handleViewProfile}
+                  onEditProfile={handleEditProfile}
+                />
+              ))}
           </div>
         ) : !loading && (
           <div className="empty-state">
@@ -140,6 +153,39 @@ const HomePage = () => {
               className="btn btn-primary"
             >
               Create Your Profile
+            </button>
+          </div>
+        )}
+
+        {creators.length > creatorsPerPage && (
+          <div className="pagination">
+            <button
+              className="page-btn"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+
+            {Array.from({ length: Math.ceil(creators.length / creatorsPerPage) }, (_, idx) => idx + 1).map((page) => (
+              <button
+                key={page}
+                className={`page-btn ${currentPage === page ? 'active' : ''}`}
+                onClick={() => {
+                  setCurrentPage(page);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              >
+                {page}
+              </button>
+            ))}
+
+            <button
+              className="page-btn"
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, Math.ceil(creators.length / creatorsPerPage)))}
+              disabled={currentPage === Math.ceil(creators.length / creatorsPerPage)}
+            >
+              Next
             </button>
           </div>
         )}

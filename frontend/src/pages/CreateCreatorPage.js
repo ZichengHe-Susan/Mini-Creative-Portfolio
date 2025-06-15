@@ -1,29 +1,26 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CreatorForm from '../components/CreatorForm';
+import '../styles/CreatorForm.css';
 
 const CreateCreatorPage = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Handle successful creator creation
   const handleCreateSuccess = (newCreator) => {
     setIsLoading(false);
     setError('');
-    // Navigate to the newly created creator's detail page
     navigate(`/creator/${newCreator.id}`, { 
       state: { message: 'Profile created successfully!' }
     });
   };
 
-  // Handle creation errors
   const handleCreateError = (error) => {
     setIsLoading(false);
     setError(error.message || 'Failed to create profile');
   };
 
-  // Handle cancel action
   const handleCancel = () => {
     navigate('/');
   };

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { creatorAPI, creativeFieldsAPI } from '../services/api';
+import Modal from './Modal';
+import '../styles/CreatorForm.css';
 
 const CreatorForm = ({ creator = null, isEdit = false, onSuccess, onCancel, onError, onLoadingChange }) => {
   const [formData, setFormData] = useState({
@@ -15,33 +17,31 @@ const CreatorForm = ({ creator = null, isEdit = false, onSuccess, onCancel, onEr
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [imagePreview, setImagePreview] = useState('');
+  const [isFieldsModalOpen, setIsFieldsModalOpen] = useState(false);
+  const [fieldsError, setFieldsError] = useState('');
 
-  // Initialize form data on component mount
   useEffect(() => {
-    // Load available creative fields first
     loadCreativeFields();
   }, []);
 
-  // Initialize form data when creator data is available
   useEffect(() => {
     if (isEdit && creator) {
-      console.log('Creator data:', creator); // Debug log
-      console.log('Creative fields:', creator.creative_fields); // Debug log
+      console.log('Creator data:', creator); 
+      console.log('Creative fields:', creator.creative_fields); 
       
       const creativeFieldIds = creator.creative_fields?.map(field => field.id) || [];
-      console.log('Extracted creative field IDs:', creativeFieldIds); // Debug log
+      console.log('Extracted creative field IDs:', creativeFieldIds); 
       
       setFormData({
         name: creator.name || '',
         bio: creator.bio || '',
-        profile_picture: null, // File input will be handled separately
+        profile_picture: null, 
         creative_fields: creativeFieldIds,
         portfolio_link_1: creator.portfolio_link_1 || '',
         portfolio_link_2: creator.portfolio_link_2 || '',
         portfolio_link_3: creator.portfolio_link_3 || ''
       });
       
-      // Set image preview if editing
       if (creator.profile_picture) {
         const imageUrl = creator.profile_picture.startsWith('http') 
           ? creator.profile_picture 
@@ -57,11 +57,15 @@ const CreatorForm = ({ creator = null, isEdit = false, onSuccess, onCancel, onEr
       setAvailableFields(Array.isArray(fields) ? fields : []);
     } catch (error) {
       console.error('Error loading creative fields:', error);
-      setAvailableFields([]); // Ensure it's always an array even on error
+      setAvailableFields([]); 
     }
   };
 
-  // Handle form input changes
+  const getFieldNameById = (fieldId) => {
+    const field = availableFields.find(f => f.id === fieldId);
+    return field ? field.name : '';
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -70,7 +74,6 @@ const CreatorForm = ({ creator = null, isEdit = false, onSuccess, onCancel, onEr
     }));
   };
 
-  // Handle image upload
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -79,7 +82,6 @@ const CreatorForm = ({ creator = null, isEdit = false, onSuccess, onCancel, onEr
         profile_picture: file
       }));
       
-      // Create preview
       const reader = new FileReader();
       reader.onload = (e) => {
         setImagePreview(e.target.result);
@@ -88,23 +90,62 @@ const CreatorForm = ({ creator = null, isEdit = false, onSuccess, onCancel, onEr
     }
   };
 
-  // Handle creative field selection
+  const showFieldsError = (msg) => {
+    setFieldsError(msg);
+    setTimeout(() => setFieldsError(''), 3000);
+  };
+
   const handleFieldSelection = (fieldId) => {
+    setFormData(prev => {
+      const alreadySelected = prev.creative_fields.includes(fieldId);
+
+      if (alreadySelected) {
+        return {
+          ...prev,
+          creative_fields: prev.creative_fields.filter(id => id !== fieldId)
+        };
+      }
+
+      if (prev.creative_fields.length >= 4) {
+        showFieldsError('You can select up to 4 creative fields.');
+        return prev;
+      }
+
+      return {
+        ...prev,
+        creative_fields: [...prev.creative_fields, fieldId]
+      };
+    });
+  };
+
+  const handleRemoveField = (fieldId) => {
     setFormData(prev => ({
       ...prev,
-      creative_fields: prev.creative_fields.includes(fieldId)
-        ? prev.creative_fields.filter(id => id !== fieldId)
-        : [...prev.creative_fields, fieldId]
+      creative_fields: prev.creative_fields.filter(id => id !== fieldId)
     }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (formData.creative_fields.length === 0) {
+      setError('Please select at least one creative field.');
+      return;
+    }
+
+    if (formData.bio.trim().length <= 5) {
+      setError('Bio must be at least 6 characters long.');
+      return;
+    }
+
+    if (!formData.portfolio_link_1.trim()) {
+      setError('Portfolio Link 1 is required.');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
-    // Notify parent component of loading state change
     if (onLoadingChange) {
       onLoadingChange(true);
     }
@@ -125,14 +166,12 @@ const CreatorForm = ({ creator = null, isEdit = false, onSuccess, onCancel, onEr
       setError(errorMessage);
       console.error('Error saving creator:', error);
       
-      // Notify parent component of error if callback provided
       if (onError) {
         onError({ message: errorMessage, originalError: error });
       }
     } finally {
       setLoading(false);
       
-      // Notify parent component of loading state change
       if (onLoadingChange) {
         onLoadingChange(false);
       }
@@ -143,11 +182,7 @@ const CreatorForm = ({ creator = null, isEdit = false, onSuccess, onCancel, onEr
     <div className="creator-form">
       <h2>{isEdit ? 'Edit' : 'Create'} Creator Profile</h2>
       
-      {error && (
-        <div className="error-message">
-          {error}
-        </div>
-      )}
+
       
       <form onSubmit={handleSubmit} className="form">
         <div className="form-group">
@@ -164,7 +199,7 @@ const CreatorForm = ({ creator = null, isEdit = false, onSuccess, onCancel, onEr
         </div>
 
         <div className="form-group">
-          <label htmlFor="bio">Bio</label>
+          <label htmlFor="bio">Bio*</label>
           <textarea
             id="bio"
             name="bio"
@@ -178,25 +213,63 @@ const CreatorForm = ({ creator = null, isEdit = false, onSuccess, onCancel, onEr
         </div>
 
         <div className="form-group">
-          <label htmlFor="profile_picture">Profile Picture</label>
-          <input
-            type="file"
-            id="profile_picture"
-            accept="image/*"
-            onChange={handleImageUpload}
-          />
-          {imagePreview && (
-            <div className="image-preview">
-              <img src={imagePreview} alt="Preview" style={{width: '100px', height: '100px', objectFit: 'cover'}} />
+          <label>Profile Picture</label>
+          <div className="profile-picture-section">
+            {imagePreview && (
+              <div className="profile-picture-preview">
+                <img src={imagePreview} alt="Preview" />
+              </div>
+            )}
+            <div className="profile-picture-upload">
+              <input
+                type="file"
+                id="profile_picture"
+                accept="image/*"
+                onChange={handleImageUpload}
+                style={{ display: 'none' }}
+              />
+              <label htmlFor="profile_picture" className="upload-button">
+                {imagePreview ? 'Change Picture' : 'Upload Picture'}
+              </label>
             </div>
-          )}
+          </div>
         </div>
 
-        <div className="form-group">
-          <label>Creative Fields</label>
-          <div className="field-selection">
-            {Array.isArray(availableFields) && availableFields.map((field) => (
-              <label key={field.id} className="checkbox-label">
+        <div className="form-group creative-fields-section">
+          <label className="creative-fields-label">Creative Fields(select 1-4 creative fields)*</label>
+          <button
+            type="button"
+            className="select-fields-button"
+            onClick={() => setIsFieldsModalOpen(true)}
+          >
+            Select Creative Fields
+          </button>
+          
+          <div className="selected-fields">
+            {formData.creative_fields.map((fieldId) => (
+              <span key={fieldId} className="selected-field-tag">
+                {getFieldNameById(fieldId)}
+                <button
+                  type="button"
+                  className="remove-field"
+                  onClick={() => handleRemoveField(fieldId)}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <Modal
+          isOpen={isFieldsModalOpen}
+          onClose={() => setIsFieldsModalOpen(false)}
+          title="Select Creative Fields"
+        >
+          {fieldsError && <div className="error-message">{fieldsError}</div>}
+          <div className="field-selection-grid">
+            {availableFields.map((field) => (
+              <label key={field.id} className="field-checkbox-label">
                 <input
                   type="checkbox"
                   checked={formData.creative_fields.includes(field.id)}
@@ -206,10 +279,10 @@ const CreatorForm = ({ creator = null, isEdit = false, onSuccess, onCancel, onEr
               </label>
             ))}
           </div>
-        </div>
+        </Modal>
 
         <div className="form-group">
-          <label htmlFor="portfolio_link_1">Portfolio Link 1</label>
+          <label htmlFor="portfolio_link_1">Portfolio Link 1*</label>
           <input
             type="url"
             id="portfolio_link_1"
@@ -217,6 +290,7 @@ const CreatorForm = ({ creator = null, isEdit = false, onSuccess, onCancel, onEr
             value={formData.portfolio_link_1}
             onChange={handleInputChange}
             placeholder="https://your-website.com"
+            required
           />
         </div>
 
@@ -228,7 +302,7 @@ const CreatorForm = ({ creator = null, isEdit = false, onSuccess, onCancel, onEr
             name="portfolio_link_2"
             value={formData.portfolio_link_2}
             onChange={handleInputChange}
-            placeholder="https://your-instagram.com"
+            placeholder="optional to add"
           />
         </div>
 
@@ -240,11 +314,17 @@ const CreatorForm = ({ creator = null, isEdit = false, onSuccess, onCancel, onEr
             name="portfolio_link_3"
             value={formData.portfolio_link_3}
             onChange={handleInputChange}
-            placeholder="https://your-portfolio.com"
+            placeholder="optional to add"
           />
         </div>
+        
 
         <div className="form-actions">
+        {error && (
+        <div className="error-message">
+          {error}
+        </div>
+      )}
           <button type="submit" disabled={loading} className="btn btn-primary">
             {loading ? 'Saving...' : (isEdit ? 'Update Profile' : 'Create Profile')}
           </button>

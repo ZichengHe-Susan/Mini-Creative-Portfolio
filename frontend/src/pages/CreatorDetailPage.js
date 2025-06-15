@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { creatorAPI } from '../services/api';
+import '../styles/CreatorDetailPage.css';
 
 const CreatorDetailPage = () => {
   const { id } = useParams();
@@ -12,16 +13,27 @@ const CreatorDetailPage = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Check for success message from navigation state
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => setSuccessMessage(''), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(''), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
   useEffect(() => {
     if (location.state?.message) {
       setSuccessMessage(location.state.message);
-      // Clear the message from state
       navigate(location.pathname, { replace: true });
     }
   }, [location.state, navigate, location.pathname]);
 
-  // Fetch creator details on component mount
   useEffect(() => {
     fetchCreatorDetails();
   }, [id]);
@@ -40,12 +52,10 @@ const CreatorDetailPage = () => {
     }
   };
 
-  // Handle edit profile navigation
   const handleEditProfile = () => {
     navigate(`/creator/${id}/edit`);
   };
 
-  // Handle delete profile with confirmation
   const handleDeleteProfile = async () => {
     if (!showDeleteConfirm) {
       setShowDeleteConfirm(true);
@@ -63,7 +73,6 @@ const CreatorDetailPage = () => {
     }
   };
 
-  // Handle share profile functionality
   const handleShareProfile = async () => {
     const profileUrl = window.location.href;
     
@@ -78,18 +87,15 @@ const CreatorDetailPage = () => {
         console.log('Error sharing:', error);
       }
     } else {
-      // Fallback: copy to clipboard
       try {
         await navigator.clipboard.writeText(profileUrl);
         alert('Profile link copied to clipboard!');
       } catch (error) {
-        // Final fallback
         prompt('Copy this link to share:', profileUrl);
       }
     }
   };
 
-  // Get profile picture URL or use placeholder
   const getProfilePicture = () => {
     if (creator?.profile_picture) {
       return creator.profile_picture.startsWith('http') 
@@ -101,7 +107,7 @@ const CreatorDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="container">
+      <div className="creator-detail-container">
         <div className="loading-state">
           <h2>Loading profile...</h2>
         </div>
@@ -111,7 +117,7 @@ const CreatorDetailPage = () => {
 
   if (error) {
     return (
-      <div className="container">
+      <div className="creator-detail-container">
         <div className="error-state">
           <h2>Error</h2>
           <p>{error}</p>
@@ -128,7 +134,7 @@ const CreatorDetailPage = () => {
 
   if (!creator) {
     return (
-      <div className="container">
+      <div className="creator-detail-container">
         <div className="error-state">
           <h2>Creator Not Found</h2>
           <p>The creator profile you're looking for doesn't exist.</p>
@@ -141,18 +147,25 @@ const CreatorDetailPage = () => {
   }
 
   return (
-    <div className="container">
+    <div className="creator-detail-container">
+      <div className="navigation-header">
+        <Link to="/" className="back-button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          Back to Home
+        </Link>
+      </div>
+
       {successMessage && (
         <div className="success-banner">
           <p>{successMessage}</p>
-          <button onClick={() => setSuccessMessage('')}>×</button>
         </div>
       )}
 
       {error && (
         <div className="error-banner">
           <p>Error: {error}</p>
-          <button onClick={() => setError('')}>×</button>
         </div>
       )}
       
@@ -177,7 +190,7 @@ const CreatorDetailPage = () => {
             
             {creator.creative_fields && creator.creative_fields.length > 0 && (
               <div className="creative-fields">
-                <h3>Creative Fields</h3>
+                <h3 className="section-title">Creative Fields</h3>
                 <div className="field-tags">
                   {creator.creative_fields.map((field) => (
                     <span key={field.id} className="field-tag">
@@ -190,7 +203,7 @@ const CreatorDetailPage = () => {
             
             {creator.portfolio_links && creator.portfolio_links.length > 0 && (
               <div className="portfolio-links">
-                <h3>Portfolio</h3>
+                <h3 className="section-title">Portfolio</h3>
                 <div className="portfolio-list">
                   {creator.portfolio_links.map((link, index) => (
                     <a 

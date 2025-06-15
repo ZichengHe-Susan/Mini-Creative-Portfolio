@@ -1,14 +1,13 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import './App.css';
+import './styles/shared.css';
 
-// Import page components
+
 import HomePage from './pages/HomePage';
 import CreateCreatorPage from './pages/CreateCreatorPage';
 import CreatorDetailPage from './pages/CreatorDetailPage';
 import EditCreatorPage from './pages/EditCreatorPage';
 
-// Import components
 import Header from './components/Header';
 import Footer from './components/Footer';
 
