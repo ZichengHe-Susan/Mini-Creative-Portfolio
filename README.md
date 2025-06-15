@@ -2,7 +2,7 @@
 
 A full-stack web application that allows creatives to create public portfolios and enables users to search for them based on creative fields and keywords.
 
-## 🛠 Tech Stack
+## Tech Stack
 
 - **Backend:** Django (Python) with Django REST Framework
 - **Frontend:** React.js with React Router
@@ -10,7 +10,7 @@ A full-stack web application that allows creatives to create public portfolios a
 - **Storage:** Local file storage for profile pictures
 - **Styling:** CSS 
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 creative-portfolio/
@@ -44,29 +44,7 @@ creative-portfolio/
 └── README.md
 ```
 
-## ⚙️ Core Features
-
-### 1️⃣ Create Creative User Profiles
-- Name
-- Profile Picture (photo upload)
-- Bio
-- Creative Fields (multi-select tags: photography, fashion design, cinematography, music, graphic design)
-- Portfolio Links (1-3 external links: personal website, Instagram, etc.)
-
-### 2️⃣ Display Creators
-- Responsive profile cards showing:
-  - Profile pic
-  - Name
-  - Bio preview
-  - Creative fields as tags
-  - Portfolio Links
-
-### 3️⃣ Search for Creators
-- Search by name substring
-- Filter by creative fields
-- Advanced search across name and bio
-
-## 🚀 Setup Instructions
+## Setup Instructions
 
 ### Prerequisites
 - Python 3.8+
@@ -146,7 +124,7 @@ npm install
 npm start
 ```
 
-## 📡 API Endpoints
+## API Endpoints
 
 ### Creators
 - `GET /api/creators/` - List all creators with optional search/filter
@@ -160,21 +138,3 @@ npm start
 - `GET /api/creative-fields/` - List all creative fields
 - `POST /api/creative-fields/` - Create a new creative field
 - `GET /api/creative-fields/{id}/` - Get creative field details
-
-## 🎨 Frontend Components (Currently without styling)
-
-### Components
-- `Header` - Navigation header
-- `Footer` - Site footer
-- `CreatorCard` - Display creator profile card
-- `SearchForm` - Search and filter interface
-- `CreatorForm` - Create/edit creator profile form
-
-### Pages
-- `HomePage` - Main page with search and creator listing
-- `CreateCreatorPage` - Create new creator profile
-- `CreatorDetailPage` - View creator profile details
-
-### Services
-- `api.js` - API service functions for backend communication
-
